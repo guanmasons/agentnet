@@ -32,7 +32,23 @@ console.xxx.ai/                # Protected Console
 
 ### Domain-based User Journey
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#A5B4FC', 'primaryTextColor': '#312E81', 'primaryBorderColor': '#4338CA', 'lineColor': '#6366F1', 'secondaryColor': '#E0E7FF', 'tertiaryColor': '#EEF2FF', 'noteTextColor': '#1E1B4B', 'noteBorderColor': '#4338CA', 'noteBkgColor': '#E0E7FF', 'activationBorderColor': '#4338CA', 'activationBkgColor': '#EEF2FF', 'sequenceNumberColor': '#312E81'}}}%%
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#818CF8',
+    'primaryTextColor': '#312E81',
+    'primaryBorderColor': '#4338CA',
+    'lineColor': '#6366F1',
+    'secondaryColor': '#E0E7FF',
+    'tertiaryColor': '#EEF2FF',
+    'noteTextColor': '#1E1B4B',
+    'noteBorderColor': '#4338CA',
+    'noteBkgColor': '#E0E7FF',
+    'activationBorderColor': '#4338CA',
+    'activationBkgColor': '#EEF2FF',
+    'sequenceNumberColor': '#312E81'
+  }
+}}%%
 graph TD
     subgraph WWW["Public Landing Site"]
         Landing["Landing Page"]
@@ -63,7 +79,7 @@ graph TD
     
     classDef www fill:#E0E7FF,stroke:#4338CA,color:#312E81,stroke-width:2px
     classDef console fill:#EEF2FF,stroke:#4338CA,color:#312E81,stroke-width:2px
-    classDef review fill:#F3E8FF,stroke:#6B21A8,color:#1E1B4B,stroke-width:2px
+    classDef review fill:#F3E8FF,stroke:#4338CA,color:#312E81,stroke-width:2px
     
     class Landing,EarlyForm www
     class Login,Register,Verify,Dashboard console
@@ -83,37 +99,49 @@ graph TD
     'tertiaryColor': '#EEF2FF',
     'noteTextColor': '#1E1B4B',
     'noteBorderColor': '#4338CA',
-    'noteBkgColor': '#E0E7FF'
+    'noteBkgColor': '#E0E7FF',
+    'activationBorderColor': '#4338CA',
+    'activationBkgColor': '#EEF2FF',
+    'sequenceNumberColor': '#312E81'
   }
 }}%%
 sequenceDiagram
-    participant U as User
+    participant U as User Browser
     participant W as www.xxx.ai
     participant C as console.xxx.ai
     participant A as Control API
     
-    U->>W: Access Landing Page
-    W->>W: Display Landing Page<br>with Early Access Form
+    rect rgb(224, 231, 255)
+        Note over U,A: Early Access Application
+        U->>W: Access Landing Page
+        W->>W: Display Landing Page<br>with Early Access Form
+        
+        U->>W: Submit Early Access Form
+        W->>A: POST /early-access/apply
+        A-->>W: Application Received
+    end
     
-    U->>W: Submit Early Access Form
-    W->>A: POST /early-access/apply
-    A-->>W: Application Received
+    rect rgb(236, 253, 243)
+        Note over U,A: Invitation Process
+        Note over U,A: Admin Review Process
+        
+        A->>U: Send Invitation Email
+        Note over U,A: Contains:<br>- Invitation Code<br>- Registration Link
+    end
     
-    Note over U,A: Admin Review Process
-    
-    A->>U: Send Invitation Email
-    Note over U,A: Contains:<br>- Invitation Code<br>- Registration Link to console.xxx.ai
-    
-    U->>C: Access Registration Page<br>via Email Link
-    C->>A: Verify Invitation Code
-    
-    alt Valid Invitation Code
-        A-->>C: Code Valid
-        C->>C: Show Registration Form
-        U->>C: Complete Registration
-    else Invalid/No Invitation Code
-        A-->>C: Code Invalid
-        C->>W: Redirect to www.xxx.ai
+    rect rgb(224, 231, 255)
+        Note over U,W: Registration Flow
+        U->>C: Access Registration Page<br>via Email Link
+        C->>A: Verify Invitation Code
+        
+        alt Valid Invitation Code
+            A-->>C: Code Valid
+            C->>C: Show Registration Form
+            U->>C: Complete Registration
+        else Invalid/No Invitation Code
+            A-->>C: Code Invalid
+            C->>W: Redirect to www.xxx.ai
+        end
     end
 ```
 
@@ -130,29 +158,41 @@ sequenceDiagram
     'tertiaryColor': '#EEF2FF',
     'noteTextColor': '#1E1B4B',
     'noteBorderColor': '#4338CA',
-    'noteBkgColor': '#E0E7FF'
+    'noteBkgColor': '#E0E7FF',
+    'activationBorderColor': '#4338CA',
+    'activationBkgColor': '#EEF2FF',
+    'sequenceNumberColor': '#312E81'
   }
 }}%%
 sequenceDiagram
-    participant U as User
+    participant U as User Browser
     participant W as www.xxx.ai
     participant C as console.xxx.ai
     participant A as Control API
     
-    U->>W: Access Landing Page
-    U->>W: Click Login
-    W->>C: Redirect to console.xxx.ai/login
+    rect rgb(224, 231, 255)
+        Note over U,A: Login Flow
+        U->>W: Access Landing Page
+        U->>W: Click Login
+        W->>C: Redirect to console.xxx.ai/login
+        
+        U->>C: Submit Login Form
+        C->>A: POST /auth/login
+        A-->>C: Auth Success + Tokens
+    end
     
-    U->>C: Submit Login Form
-    C->>A: POST /auth/login
-    A-->>C: Auth Success + Tokens
+    rect rgb(236, 253, 243)
+        Note over U,W: Session Management
+        C->>C: Store Tokens
+        C->>C: Redirect to Dashboard
+    end
     
-    C->>C: Store Tokens
-    C->>C: Redirect to Dashboard
-    
-    U->>C: Click Logout
-    C->>C: Clear Tokens
-    C->>W: Redirect to www.xxx.ai
+    rect rgb(224, 231, 255)
+        Note over U,W: Logout Flow
+        U->>C: Click Logout
+        C->>C: Clear Tokens
+        C->>W: Redirect to www.xxx.ai
+    end
 ```
 
 ## Frontend-Backend Interface
